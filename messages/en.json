@@ -102,7 +102,10 @@
     "status_shipped": "Shipped",
     "status_delivered": "Delivered",
     "status_cancelled": "Cancelled",
-    "status_rejected": "Rejected"
+    "status_rejected": "Rejected",
+    "quantity": "Qty",
+    "price": "Unit Price",
+    "address": "Address"
   },
   "products": {
     "title": "Products",

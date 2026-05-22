@@ -102,7 +102,10 @@
     "status_shipped": "مشحون",
     "status_delivered": "تم التسليم",
     "status_cancelled": "ملغي",
-    "status_rejected": "مرفوض"
+    "status_rejected": "مرفوض",
+    "quantity": "الكمية",
+    "price": "سعر الوحدة",
+    "address": "العنوان"
   },
   "products": {
     "title": "المنتجات",
