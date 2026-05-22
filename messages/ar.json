@@ -110,6 +110,7 @@
   "products": {
     "title": "المنتجات",
     "add_product": "إضافة منتج",
+    "edit_product": "تعديل المنتج",
     "condition": "الحالة",
     "condition_new": "جديد",
     "condition_used": "مستعمل",

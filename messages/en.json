@@ -110,6 +110,7 @@
   "products": {
     "title": "Products",
     "add_product": "Add Product",
+    "edit_product": "Edit Product",
     "condition": "Condition",
     "condition_new": "New",
     "condition_used": "Used",
