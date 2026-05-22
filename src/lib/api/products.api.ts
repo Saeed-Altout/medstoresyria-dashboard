@@ -41,7 +41,7 @@ export const createProduct = async (
 
 export const updateProduct = async (
   id: string,
-  dto: Partial<CreateProductDto>,
+  dto: Partial<CreateProductDto> & { is_active?: boolean },
 ): Promise<ProductDetail> => {
   const { data } = await apiClient.patch<ApiResponse<ProductDetail>>(
     `/products/${id}`,
