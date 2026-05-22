@@ -15,20 +15,26 @@ export const getOrderById = async (id: string): Promise<Order> => {
   return data.data;
 };
 
-export const confirmOrder = (id: string): Promise<unknown> =>
-  apiClient.patch(`/orders/${id}/confirm`);
+export const confirmOrder = async (id: string): Promise<void> => {
+  await apiClient.patch(`/orders/${id}/confirm`);
+};
 
-export const rejectOrder = (id: string, reason: string): Promise<unknown> =>
-  apiClient.patch(`/orders/${id}/reject`, { reason });
+export const rejectOrder = async (id: string, reason: string): Promise<void> => {
+  await apiClient.patch(`/orders/${id}/reject`, { reason });
+};
 
-export const prepareOrder = (id: string): Promise<unknown> =>
-  apiClient.patch(`/orders/${id}/prepare`);
+export const prepareOrder = async (id: string): Promise<void> => {
+  await apiClient.patch(`/orders/${id}/prepare`);
+};
 
-export const shipOrder = (id: string): Promise<unknown> =>
-  apiClient.patch(`/orders/${id}/ship`);
+export const shipOrder = async (id: string): Promise<void> => {
+  await apiClient.patch(`/orders/${id}/ship`);
+};
 
-export const deliverOrder = (id: string): Promise<unknown> =>
-  apiClient.patch(`/orders/${id}/deliver`);
+export const deliverOrder = async (id: string): Promise<void> => {
+  await apiClient.patch(`/orders/${id}/deliver`);
+};
 
-export const cancelOrder = (id: string): Promise<unknown> =>
-  apiClient.patch(`/orders/${id}/cancel`);
+export const cancelOrder = async (id: string): Promise<void> => {
+  await apiClient.patch(`/orders/${id}/cancel`);
+};
