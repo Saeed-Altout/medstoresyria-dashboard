@@ -34,10 +34,7 @@ export function StatusBadge(props: StatusBadgeProps) {
   if (props.kind === "order") {
     const label = tOrders(`status_${props.status}` as Parameters<typeof tOrders>[0]);
     return (
-      <Badge
-        variant="outline"
-        className={cn("font-medium text-xs", ORDER_COLORS[props.status])}
-      >
+      <Badge variant="outline" className={cn("font-medium text-xs", ORDER_COLORS[props.status])}>
         {label}
       </Badge>
     );
@@ -45,10 +42,7 @@ export function StatusBadge(props: StatusBadgeProps) {
 
   const label = tMaintenance(`status_${props.status}` as Parameters<typeof tMaintenance>[0]);
   return (
-    <Badge
-      variant="outline"
-      className={cn("font-medium text-xs", MAINTENANCE_COLORS[props.status])}
-    >
+    <Badge variant="outline" className={cn("font-medium text-xs", MAINTENANCE_COLORS[props.status])}>
       {label}
     </Badge>
   );
