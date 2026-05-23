@@ -1,65 +1,115 @@
 "use client";
 
+import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAuthStore } from "@/stores/auth.store";
 import { canAccess } from "@/lib/utils/roles";
-import { useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getUsers, toggleUserActive } from "@/lib/api/users.api";
-import { Header } from "@/components/header";
-import { getFullName } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import type { UserRole, ApiResponse } from "@/types";
-import { AxiosError } from "axios";
+import { IconPlus } from "@tabler/icons-react";
+import { DataTable } from "@/components/data-table";
+import { Header } from "@/components/header";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useGetUsers, useUserFilters, useToggleUserActive } from "@/lib/hooks/users";
+import { useDebouncedSearch } from "@/hooks/use-table-filters";
+import { getUserColumns } from "./_components/columns";
+import { UsersToolbar } from "./_components/users-toolbar";
+import { UserFormSheet } from "./_components/user-form-sheet";
+import type { User, UserRole } from "@/types";
 
 export default function UsersPage() {
   const t = useTranslations("users");
   const tCommon = useTranslations("common");
   const router = useRouter();
-  const user = useAuthStore((s) => s.user);
-  const qc = useQueryClient();
+  const { user } = useAuthStore();
 
   useEffect(() => {
-    if (user && !canAccess(user.role as UserRole, "users")) {
-      router.replace("/overview");
-    }
+    if (user && !canAccess(user.role as UserRole, "users")) router.replace("/overview");
   }, [user, router]);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["users"],
-    queryFn: () => getUsers({ page: 1, limit: 50 }),
-  });
+  const [formOpen, setFormOpen] = useState(false);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [toggleTarget, setToggleTarget] = useState<User | null>(null);
+  const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
 
-  const { mutate: toggle } = useMutation<unknown, AxiosError<ApiResponse<null>>, string>({
-    mutationFn: toggleUserActive,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["users"] }); },
-    onError: (err) => { toast.error(err.response?.data?.message ?? "Error"); },
-  });
+  const { filters, setPage, setLimit, setFilter } = useUserFilters();
+  const { data, isLoading } = useGetUsers(filters);
+  const toggleMutation = useToggleUserActive();
+  const handleSearch = useDebouncedSearch(useUserFilters.getState().setSearch);
+
+  function handleRoleChange(role: UserRole | undefined) {
+    setRoleFilter(role ?? "all");
+    setFilter("role", role);
+  }
+
+  const columns = useMemo(
+    () =>
+      getUserColumns({
+        tName: tCommon("name"),
+        tRole: t("role"),
+        tActive: t("active"),
+        tInactive: t("inactive"),
+        tCreatedAt: t("created_at"),
+        tActivate: t("activate"),
+        tDeactivate: t("deactivate"),
+        onEdit: (u) => { setEditUser(u); setFormOpen(true); },
+        onToggle: setToggleTarget,
+      }),
+    [t, tCommon],
+  );
+
+  if (!user) return null;
+
+  const isAdmin = user.role === "admin";
 
   return (
-    <div className="space-y-5">
-      <Header title={t("title")} />
-      {isLoading && <p className="text-muted-foreground">{tCommon("loading")}</p>}
-      {data && (
-        <div className="rounded-lg border divide-y">
-          {data.data.map((u) => (
-            <div key={u.id} className="flex items-center justify-between p-4">
-              <div>
-                <p className="font-medium">{getFullName(u)}</p>
-                <p className="text-sm text-muted-foreground">{u.email}</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted-foreground capitalize">{u.role}</span>
-                <Button size="sm" variant={u.is_active ? "outline" : "default"} onClick={() => toggle(u.id)}>
-                  {u.is_active ? t("deactivate") : t("activate")}
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+    <div className="flex flex-col gap-5">
+      <Header title={t("title")}>
+        {isAdmin && (
+          <Button size="sm" onClick={() => { setEditUser(null); setFormOpen(true); }}>
+            <IconPlus data-icon="inline-start" />
+            {t("add_user")}
+          </Button>
+        )}
+      </Header>
+
+      <DataTable<User>
+        columns={columns}
+        data={data?.data ?? []}
+        isLoading={isLoading}
+        meta={data?.meta}
+        onPageChange={setPage}
+        onLimitChange={setLimit}
+        searchable
+        onSearch={handleSearch}
+        toolbar={
+          <UsersToolbar role={roleFilter} onRoleChange={handleRoleChange} />
+        }
+      />
+
+      {isAdmin && (
+        <UserFormSheet
+          open={formOpen}
+          onOpenChange={(o) => { setFormOpen(o); if (!o) setEditUser(null); }}
+          user={editUser}
+        />
       )}
+
+      <ConfirmDialog
+        open={toggleTarget !== null}
+        onCancel={() => setToggleTarget(null)}
+        title={tCommon("are_you_sure")}
+        description={
+          toggleTarget?.is_active ? t("deactivate_confirm") : t("activate_confirm")
+        }
+        onConfirm={() => {
+          if (toggleTarget) {
+            toggleMutation.mutate(toggleTarget.id, { onSuccess: () => setToggleTarget(null) });
+          }
+        }}
+        isLoading={toggleMutation.isPending}
+        variant={toggleTarget?.is_active ? "destructive" : "default"}
+      />
     </div>
   );
 }
