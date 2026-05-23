@@ -1,63 +1,106 @@
 "use client";
 
+import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAuthStore } from "@/stores/auth.store";
 import { canAccess } from "@/lib/utils/roles";
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getInventoryAlerts } from "@/lib/api/inventory.api";
+import { DataTable } from "@/components/data-table";
 import { Header } from "@/components/header";
-import { cn } from "@/lib/utils";
-import type { UserRole } from "@/types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  useGetInventoryAlerts,
+  useGetInventoryLogs,
+  useInventoryLogFilters,
+} from "@/lib/hooks/inventory";
+import { useDebouncedSearch } from "@/hooks/use-table-filters";
+import { getInventoryColumns } from "./_components/columns";
+import { getLogColumns } from "./_components/log-columns";
+import { AdjustStockDialog } from "./_components/adjust-stock-dialog";
+import type { InventorySnapshot, UserRole } from "@/types";
 
 export default function InventoryPage() {
   const t = useTranslations("inventory");
-  const tCommon = useTranslations("common");
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
-    if (user && !canAccess(user.role as UserRole, "inventory")) {
-      router.replace("/overview");
-    }
+    if (user && !canAccess(user.role as UserRole, "inventory")) router.replace("/overview");
   }, [user, router]);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["inventory-alerts"],
-    queryFn: getInventoryAlerts,
-  });
+  const [adjustItem, setAdjustItem] = useState<InventorySnapshot | null>(null);
 
-  const statusClass = (status: "ok" | "low" | "out") => {
-    if (status === "ok") return "bg-green-100 text-green-800";
-    if (status === "low") return "bg-yellow-100 text-yellow-800";
-    return "bg-red-100 text-red-800";
-  };
+  const { data: alerts, isLoading: alertsLoading } = useGetInventoryAlerts();
+
+  const { filters, setPage, setLimit } = useInventoryLogFilters();
+  const { data: logs, isLoading: logsLoading } = useGetInventoryLogs(filters);
+  const handleLogSearch = useDebouncedSearch(useInventoryLogFilters.getState().setSearch);
+
+  const alertColumns = useMemo(
+    () =>
+      getInventoryColumns({
+        tCurrentStock: t("current_stock"),
+        tMinLevel: t("min_level"),
+        tStatusOk: t("status_ok"),
+        tStatusLow: t("status_low"),
+        tStatusOut: t("status_out"),
+        tAdjust: t("adjust"),
+        onAdjust: setAdjustItem,
+      }),
+    [t],
+  );
+
+  const logColumns = useMemo(
+    () =>
+      getLogColumns({
+        tLogTypeIn: t("log_type_in"),
+        tLogTypeOut: t("log_type_out"),
+        tLogTypeAdjustment: t("log_type_adjustment"),
+        tReference: t("reference"),
+        tBy: t("by"),
+      }),
+    [t],
+  );
+
+  if (!user) return null;
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-5">
       <Header title={t("title")} />
-      {isLoading && <p className="text-muted-foreground">{tCommon("loading")}</p>}
-      {data && (
-        <div className="rounded-lg border divide-y">
-          {data.map((item) => (
-            <div key={item.id} className="flex items-center justify-between p-4">
-              <div>
-                <p className="font-medium">{item.name}</p>
-                <p className="text-sm text-muted-foreground">{item.category}</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-sm">
-                  {t("current_stock")}: {item.stock_qty} / {t("min_level")}: {item.stock_min}
-                </span>
-                <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium", statusClass(item.status))}>
-                  {t(`status_${item.status}`)}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+
+      <Tabs defaultValue="stock">
+        <TabsList>
+          <TabsTrigger value="stock">{t("tab_stock")}</TabsTrigger>
+          <TabsTrigger value="logs">{t("tab_logs")}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="stock" className="mt-4">
+          <DataTable
+            columns={alertColumns}
+            data={alerts ?? []}
+            isLoading={alertsLoading}
+          />
+        </TabsContent>
+
+        <TabsContent value="logs" className="mt-4">
+          <DataTable
+            columns={logColumns}
+            data={logs?.data ?? []}
+            isLoading={logsLoading}
+            meta={logs?.meta}
+            onPageChange={setPage}
+            onLimitChange={setLimit}
+            searchable
+            onSearch={handleLogSearch}
+          />
+        </TabsContent>
+      </Tabs>
+
+      <AdjustStockDialog
+        item={adjustItem}
+        open={adjustItem !== null}
+        onOpenChange={(o) => { if (!o) setAdjustItem(null); }}
+      />
     </div>
   );
 }
