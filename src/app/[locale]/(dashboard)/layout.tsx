@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useAuthStore } from "@/stores/auth.store";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Header } from "@/components/layout/Header";
+import { AppSidebar } from "./_components/app-sidebar";
+import { SiteHeader } from "./_components/site-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default function DashboardLayout({
   children,
@@ -13,24 +14,41 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+    // Wait for Zustand persist to rehydrate from sessionStorage before checking auth
+    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+    if (useAuthStore.persist.hasHydrated()) setHydrated(true);
+    return unsub;
+  }, []);
+
+  useEffect(() => {
+    if (hydrated && !user) {
       router.replace("/login");
     }
-  }, [user, router]);
+  }, [hydrated, user, router]);
 
-  if (!user) return null;
+  if (!hydrated || !user) return null;
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex flex-col flex-1 overflow-hidden min-w-0">
-        <Header />
-        <main className="flex-1 overflow-y-auto p-6 bg-muted/30">
-          {children}
-        </main>
-      </div>
-    </div>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader />
+        <div className="flex flex-1 flex-col">
+          <main className="@container/main flex flex-1 flex-col gap-2 p-4">
+            {children}
+          </main>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

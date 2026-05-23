@@ -7,6 +7,7 @@ import { canAccess } from "@/lib/utils/roles";
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSettings, updateSettings } from "@/lib/api/settings.api";
+import { Header } from "@/components/header";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -77,8 +78,8 @@ export default function SettingsPage() {
   });
 
   return (
-    <div className="max-w-xl">
-      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
+    <div className="max-w-xl space-y-5">
+      <Header title={t("title")} />
       <form onSubmit={handleSubmit((v) => save(v))} className="space-y-4">
         {SETTING_KEYS.map((key) => (
           <div key={key} className="space-y-1">

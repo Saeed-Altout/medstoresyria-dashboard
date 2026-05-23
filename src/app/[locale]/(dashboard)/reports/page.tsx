@@ -12,6 +12,7 @@ import {
   getInventorySnapshot,
   getMaintenanceSummary,
 } from "@/lib/api/reports.api";
+import { Header } from "@/components/header";
 import { formatPrice } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,9 +58,9 @@ export default function ReportsPage() {
   });
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
-      <div className="flex items-center gap-3 mb-6 flex-wrap">
+    <div className="space-y-5">
+      <Header title={t("title")} />
+      <div className="flex items-center gap-3 flex-wrap">
         <label className="text-sm">{t("from")}</label>
         <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="w-40" />
         <label className="text-sm">{t("to")}</label>

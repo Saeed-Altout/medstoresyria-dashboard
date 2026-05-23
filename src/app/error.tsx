@@ -1,7 +1,6 @@
-"use client"; // Error boundaries must be Client Components
+"use client";
 
 import { useEffect } from "react";
-import { useTranslations } from "next-intl";
 
 export default function Error({
   error,
@@ -10,23 +9,18 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const t = useTranslations("Error");
-
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error(error);
   }, [error]);
 
   return (
-    <div>
-      <h2>{t("title")}</h2>
+    <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+      <h2 className="text-xl font-semibold">Something went wrong</h2>
       <button
-        onClick={
-          // Attempt to recover by trying to re-render the segment
-          () => reset()
-        }
+        onClick={reset}
+        className="px-4 py-2 rounded bg-primary text-primary-foreground text-sm"
       >
-        {t("retry")}
+        Try again
       </button>
     </div>
   );

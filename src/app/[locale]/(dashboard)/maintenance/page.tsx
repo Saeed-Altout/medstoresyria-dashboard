@@ -7,6 +7,7 @@ import { canAccess } from "@/lib/utils/roles";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getMaintenanceRequests } from "@/lib/api/maintenance.api";
+import { Header } from "@/components/header";
 import { formatDate, getMaintenanceStatusColor } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types";
@@ -29,8 +30,8 @@ export default function MaintenancePage() {
   });
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
+    <div className="space-y-5">
+      <Header title={t("title")} />
       {isLoading && <p className="text-muted-foreground">{tCommon("loading")}</p>}
       {data && (
         <div className="rounded-lg border divide-y">

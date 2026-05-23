@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@/i18n/navigation";
-import { useEffect } from "react";
 import type { AxiosError } from "axios";
 import { toast } from "sonner";
 import {
@@ -18,8 +17,8 @@ import { getSalesSummary } from "@/lib/api/reports.api";
 import { getOrders, confirmOrder, rejectOrder } from "@/lib/api/orders.api";
 import { getInventoryAlerts } from "@/lib/api/inventory.api";
 import { getMaintenanceRequests } from "@/lib/api/maintenance.api";
-import { StatsCard } from "@/components/shared/StatsCard";
-import { StatusBadge } from "@/components/shared/StatusBadge";
+import { StatsCard } from "@/components/stats-card";
+import { StatusBadge } from "@/components/status-badge";
 import { formatPrice, formatDate } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,10 +38,6 @@ export default function OverviewPage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    if (!user) router.replace("/login");
-  }, [user, router]);
 
   const today = new Date().toISOString().split("T")[0];
   const monthStart = new Date(
@@ -80,29 +75,27 @@ export default function OverviewPage() {
     enabled: canAccess(user?.role, "maintenance"),
   });
 
-  const confirmMutation = useMutation<void, AxiosError, string>({
+  const confirmMutation = useMutation<string, AxiosError, string>({
     mutationFn: confirmOrder,
-    onSuccess: () => {
+    onSuccess: (msg) => {
       queryClient.invalidateQueries({ queryKey: ["pending-orders"] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
-      toast.success(tOrders("action_confirm") + " ✓");
+      toast.success(msg);
     },
     onError: (err) => {
-      const msg = (err.response?.data as ApiResponse<null>)?.message;
-      toast.error(msg);
+      toast.error((err.response?.data as ApiResponse<null>)?.message);
     },
   });
 
-  const rejectMutation = useMutation<void, AxiosError, { id: string; reason: string }>({
+  const rejectMutation = useMutation<string, AxiosError, { id: string; reason: string }>({
     mutationFn: ({ id, reason }) => rejectOrder(id, reason),
-    onSuccess: () => {
+    onSuccess: (msg) => {
       queryClient.invalidateQueries({ queryKey: ["pending-orders"] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
-      toast.success(tOrders("action_reject") + " ✓");
+      toast.success(msg);
     },
     onError: (err) => {
-      const msg = (err.response?.data as ApiResponse<null>)?.message;
-      toast.error(msg);
+      toast.error((err.response?.data as ApiResponse<null>)?.message);
     },
   });
 

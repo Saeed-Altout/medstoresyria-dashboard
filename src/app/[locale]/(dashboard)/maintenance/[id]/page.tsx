@@ -42,7 +42,7 @@ export default function MaintenanceDetailPage() {
       </div>
       <div className="rounded-lg border p-4 space-y-2">
         <h2 className="font-semibold">{t("timeline")}</h2>
-        {req.statusLogs.map((log) => (
+        {(req.status_logs ?? []).map((log) => (
           <div key={log.id} className="flex gap-3 text-sm">
             <span className="text-muted-foreground">{formatDateTime(log.created_at)}</span>
             <span className="font-medium">{log.status}</span>

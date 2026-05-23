@@ -7,6 +7,7 @@ import { canAccess } from "@/lib/utils/roles";
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getUsers, toggleUserActive } from "@/lib/api/users.api";
+import { Header } from "@/components/header";
 import { getFullName } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -38,8 +39,8 @@ export default function UsersPage() {
   });
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
+    <div className="space-y-5">
+      <Header title={t("title")} />
       {isLoading && <p className="text-muted-foreground">{tCommon("loading")}</p>}
       {data && (
         <div className="rounded-lg border divide-y">

@@ -4,9 +4,11 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { getMessages } from "next-intl/server";
 import { routing } from "@/i18n/routing";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/providers/query-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 import "../globals.css";
 
 const cairo = Cairo({
@@ -52,7 +54,7 @@ export default async function LocaleLayout({
       <body
         className={`min-h-full flex flex-col ${isRTL ? "font-cairo" : "font-inter"}`}
       >
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <QueryProvider>
             <ThemeProvider
               attribute="class"
@@ -60,7 +62,7 @@ export default async function LocaleLayout({
               enableSystem
               disableTransitionOnChange
             >
-              {children}
+              <TooltipProvider>{children}</TooltipProvider>
               <Toaster position={isRTL ? "bottom-left" : "bottom-right"} />
             </ThemeProvider>
           </QueryProvider>

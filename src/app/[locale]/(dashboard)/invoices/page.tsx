@@ -7,6 +7,7 @@ import { canAccess } from "@/lib/utils/roles";
 import { useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getInvoices, downloadInvoice } from "@/lib/api/invoices.api";
+import { Header } from "@/components/header";
 import { formatDate, formatPrice } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import type { UserRole } from "@/types";
@@ -41,8 +42,8 @@ export default function InvoicesPage() {
   });
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
+    <div className="space-y-5">
+      <Header title={t("title")} />
       {isLoading && <p className="text-muted-foreground">{tCommon("loading")}</p>}
       {data && (
         <div className="rounded-lg border divide-y">

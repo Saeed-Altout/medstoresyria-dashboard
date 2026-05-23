@@ -7,6 +7,7 @@ import { canAccess } from "@/lib/utils/roles";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getInventoryAlerts } from "@/lib/api/inventory.api";
+import { Header } from "@/components/header";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types";
 
@@ -34,8 +35,8 @@ export default function InventoryPage() {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
+    <div className="space-y-5">
+      <Header title={t("title")} />
       {isLoading && <p className="text-muted-foreground">{tCommon("loading")}</p>}
       {data && (
         <div className="rounded-lg border divide-y">
