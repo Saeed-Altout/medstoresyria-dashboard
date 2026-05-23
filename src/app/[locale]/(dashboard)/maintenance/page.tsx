@@ -1,60 +1,82 @@
 "use client";
 
+import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAuthStore } from "@/stores/auth.store";
 import { canAccess } from "@/lib/utils/roles";
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getMaintenanceRequests } from "@/lib/api/maintenance.api";
+import { DataTable } from "@/components/data-table";
 import { Header } from "@/components/header";
-import { formatDate, getMaintenanceStatusColor } from "@/lib/utils/format";
-import { cn } from "@/lib/utils";
-import type { UserRole } from "@/types";
+import {
+  useGetMaintenanceRequests,
+  useMaintenanceFilters,
+} from "@/lib/hooks/maintenance";
+import { useDebouncedSearch } from "@/hooks/use-table-filters";
+import { getMaintenanceColumns } from "./_components/columns";
+import { MaintenanceToolbar } from "./_components/maintenance-toolbar";
+import type { MaintenanceRequest, MaintenanceStatus, UserRole } from "@/types";
 
 export default function MaintenancePage() {
   const t = useTranslations("maintenance");
-  const tCommon = useTranslations("common");
   const router = useRouter();
-  const user = useAuthStore((s) => s.user);
+  const { user } = useAuthStore();
 
   useEffect(() => {
-    if (user && !canAccess(user.role as UserRole, "maintenance")) {
-      router.replace("/overview");
-    }
+    if (user && !canAccess(user.role as UserRole, "maintenance")) router.replace("/overview");
   }, [user, router]);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["maintenance"],
-    queryFn: () => getMaintenanceRequests({ page: 1, limit: 20 }),
-  });
+  const [statusFilter, setStatusFilter] = useState<MaintenanceStatus | "all">("all");
+
+  const { filters, setPage, setLimit, setFilter } = useMaintenanceFilters();
+  const { data, isLoading } = useGetMaintenanceRequests(filters);
+  const handleSearch = useDebouncedSearch(useMaintenanceFilters.getState().setSearch);
+
+  function handleStatusChange(status: MaintenanceStatus | undefined) {
+    setStatusFilter(status ?? "all");
+    setFilter("status", status);
+  }
+
+  const statusLabels: Record<MaintenanceStatus, string> = {
+    pending: t("status_pending"),
+    assigned: t("status_assigned"),
+    in_progress: t("status_in_progress"),
+    completed: t("status_completed"),
+    cancelled: t("status_cancelled"),
+  };
+
+  const columns = useMemo(
+    () =>
+      getMaintenanceColumns({
+        tRequestNumber: t("request_number"),
+        tDeviceType: t("device_type"),
+        tTechnician: t("technician"),
+        tUnassigned: t("unassigned"),
+        tStatusLabels: statusLabels,
+        onView: (req: MaintenanceRequest) => router.push(`/maintenance/${req.id}`),
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t],
+  );
+
+  if (!user) return null;
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-5">
       <Header title={t("title")} />
-      {isLoading && <p className="text-muted-foreground">{tCommon("loading")}</p>}
-      {data && (
-        <div className="rounded-lg border divide-y">
-          {data.data.map((req) => (
-            <div
-              key={req.id}
-              className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/40"
-              onClick={() => router.push(`/maintenance/${req.id}`)}
-            >
-              <div>
-                <p className="font-medium">#{req.request_number} — {req.device_type}</p>
-                <p className="text-sm text-muted-foreground">{req.customer_name}</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted-foreground">{formatDate(req.created_at)}</span>
-                <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium", getMaintenanceStatusColor(req.status))}>
-                  {t(`status_${req.status}`)}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+
+      <DataTable<MaintenanceRequest>
+        columns={columns}
+        data={data?.data ?? []}
+        isLoading={isLoading}
+        meta={data?.meta}
+        onPageChange={setPage}
+        onLimitChange={setLimit}
+        searchable
+        onSearch={handleSearch}
+        toolbar={
+          <MaintenanceToolbar status={statusFilter} onStatusChange={handleStatusChange} />
+        }
+      />
     </div>
   );
 }
