@@ -243,7 +243,7 @@ export interface TopProduct {
 export interface InventorySnapshot {
   id: string;
   name: string;
-  category: string;
+  category: string | null;
   stock_qty: number;
   stock_min: number;
   status: "ok" | "low" | "out";
