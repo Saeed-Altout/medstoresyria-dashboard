@@ -1,11 +1,13 @@
 import apiClient from "./client";
 import type { ApiResponse, Category, UpsertTranslationDto } from "@/types";
 
-export const getCategoryTree = async (): Promise<Category[]> => {
-  const { data } =
-    await apiClient.get<ApiResponse<Category[]>>("/categories");
+export const getCategoryTree = async (status: "active" | "inactive" | "all" = "active"): Promise<Category[]> => {
+  const { data } = await apiClient.get<ApiResponse<Category[]>>("/categories", {
+    params: status !== "active" ? { status } : undefined,
+  });
   return data.data;
 };
+
 
 export const createCategory = async (dto: {
   slug: string;
@@ -22,7 +24,7 @@ export const createCategory = async (dto: {
 
 export const updateCategory = async (
   id: string,
-  dto: Partial<{ slug: string; sortOrder: number; parentId: string }>,
+  dto: Partial<{ slug: string; sortOrder: number; parentId: string; isActive: boolean }>,
 ): Promise<Category> => {
   const { data } = await apiClient.patch<ApiResponse<Category>>(
     `/categories/${id}`,
@@ -37,7 +39,7 @@ export const deleteCategory = async (id: string): Promise<void> => {
 
 export const upsertCategoryTranslations = async (
   id: string,
-  dto: UpsertTranslationDto,
+  translations: UpsertTranslationDto[],
 ): Promise<void> => {
-  await apiClient.post(`/categories/${id}/translations`, dto);
+  await apiClient.post(`/categories/${id}/translations`, { translations });
 };

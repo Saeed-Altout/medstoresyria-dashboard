@@ -8,6 +8,8 @@ export const getBrands = async (): Promise<Brand[]> => {
 
 export const createBrand = async (dto: {
   slug: string;
+  logoUrl?: string;
+  website?: string;
   translations: UpsertTranslationDto[];
 }): Promise<Brand> => {
   const { data } = await apiClient.post<ApiResponse<Brand>>("/brands", dto);
@@ -16,7 +18,7 @@ export const createBrand = async (dto: {
 
 export const updateBrand = async (
   id: string,
-  dto: Partial<{ slug: string }>,
+  dto: Partial<{ slug: string; logoUrl: string; website: string }>,
 ): Promise<Brand> => {
   const { data } = await apiClient.patch<ApiResponse<Brand>>(
     `/brands/${id}`,
@@ -31,7 +33,7 @@ export const deleteBrand = async (id: string): Promise<void> => {
 
 export const upsertBrandTranslations = async (
   id: string,
-  dto: UpsertTranslationDto,
+  translations: UpsertTranslationDto[],
 ): Promise<void> => {
-  await apiClient.post(`/brands/${id}/translations`, dto);
+  await apiClient.post(`/brands/${id}/translations`, { translations });
 };

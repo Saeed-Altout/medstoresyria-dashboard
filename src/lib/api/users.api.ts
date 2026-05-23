@@ -31,25 +31,24 @@ export const getUserById = async (id: string): Promise<User> => {
   return data.data;
 };
 
-export const createUser = async (dto: CreateUserDto): Promise<User> => {
+export const createUser = async (
+  dto: CreateUserDto,
+): Promise<{ data: User; message: string }> => {
   const { data } = await apiClient.post<ApiResponse<User>>("/users", dto);
-  return data.data;
+  return { data: data.data, message: data.message };
 };
 
 export const updateUser = async (
   id: string,
   dto: UpdateUserDto,
-): Promise<User> => {
-  const { data } = await apiClient.patch<ApiResponse<User>>(
-    `/users/${id}`,
-    dto,
-  );
-  return data.data;
+): Promise<{ data: User; message: string }> => {
+  const { data } = await apiClient.patch<ApiResponse<User>>(`/users/${id}`, dto);
+  return { data: data.data, message: data.message };
 };
 
-export const toggleUserActive = async (id: string): Promise<User> => {
-  const { data } = await apiClient.patch<ApiResponse<User>>(
-    `/users/${id}/toggle`,
-  );
-  return data.data;
+export const toggleUserActive = async (
+  id: string,
+): Promise<{ data: User; message: string }> => {
+  const { data } = await apiClient.patch<ApiResponse<User>>(`/users/${id}/toggle`);
+  return { data: data.data, message: data.message };
 };

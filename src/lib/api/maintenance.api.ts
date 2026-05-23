@@ -37,13 +37,21 @@ export const getAssignedMaintenance = async (): Promise<
 export const assignTechnician = async (
   id: string,
   dto: { technicianId: string; scheduled_at: string },
-): Promise<void> => {
-  await apiClient.patch(`/maintenance/${id}/assign`, dto);
+): Promise<string> => {
+  const { data } = await apiClient.patch<ApiResponse<MaintenanceRequest>>(
+    `/maintenance/${id}/assign`,
+    dto,
+  );
+  return data.message;
 };
 
 export const updateMaintenanceStatus = async (
   id: string,
   dto: { status: string; note?: string },
-): Promise<void> => {
-  await apiClient.patch(`/maintenance/${id}/status`, dto);
+): Promise<string> => {
+  const { data } = await apiClient.patch<ApiResponse<MaintenanceRequest>>(
+    `/maintenance/${id}/status`,
+    dto,
+  );
+  return data.message;
 };

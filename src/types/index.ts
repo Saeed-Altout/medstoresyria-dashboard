@@ -83,6 +83,7 @@ export interface ProductAttribute {
 export interface ProductDetail extends ProductListItem {
   stock_min: number;
   is_active: boolean;
+  in_stock: boolean;
   description: string | null;
   condition_report: string | null;
   images: ProductImage[];
@@ -141,7 +142,7 @@ export interface Order {
     last_name: string;
   } | null;
   items: OrderItem[];
-  statusLogs: StatusLog[];
+  status_logs: StatusLog[];
   invoice: {
     id: string;
     invoice_number: string;
@@ -170,7 +171,7 @@ export interface MaintenanceRequest {
     first_name: string;
     last_name: string;
   } | null;
-  statusLogs: StatusLog[];
+  status_logs: StatusLog[];
 }
 
 export interface InventoryLog {
@@ -196,8 +197,10 @@ export interface Category {
   slug: string;
   imageUrl: string | null;
   sortOrder: number;
+  isActive: boolean;
   name: string;
   description: string | null;
+  translations: { locale: string; name: string; description: string | null }[];
   children: Category[];
 }
 
@@ -205,8 +208,10 @@ export interface Brand {
   id: string;
   slug: string;
   logoUrl: string | null;
+  website: string | null;
   name: string;
   description: string | null;
+  translations: { locale: string; name: string; description: string | null }[];
 }
 
 export interface Setting {

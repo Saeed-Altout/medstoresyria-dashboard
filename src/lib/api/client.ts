@@ -10,6 +10,13 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) config.headers["Authorization"] = `Bearer ${token}`;
+
+  // Send locale so the backend translates messages in the user's language
+  if (typeof window !== "undefined") {
+    const locale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+    config.headers["Accept-Language"] = locale;
+  }
+
   return config;
 });
 

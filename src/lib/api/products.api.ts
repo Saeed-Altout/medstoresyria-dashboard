@@ -31,69 +31,68 @@ export const getProductBySlug = async (slug: string): Promise<ProductDetail> => 
 
 export const createProduct = async (
   dto: CreateProductDto,
-): Promise<ProductDetail> => {
-  const { data } = await apiClient.post<ApiResponse<ProductDetail>>(
-    "/products",
-    dto,
-  );
-  return data.data;
+): Promise<{ data: ProductDetail; message: string }> => {
+  const { data } = await apiClient.post<ApiResponse<ProductDetail>>("/products", dto);
+  return { data: data.data, message: data.message };
 };
 
 export const updateProduct = async (
   id: string,
   dto: Partial<CreateProductDto> & { is_active?: boolean },
-): Promise<ProductDetail> => {
-  const { data } = await apiClient.patch<ApiResponse<ProductDetail>>(
-    `/products/${id}`,
-    dto,
-  );
-  return data.data;
+): Promise<{ data: ProductDetail; message: string }> => {
+  const { data } = await apiClient.patch<ApiResponse<ProductDetail>>(`/products/${id}`, dto);
+  return { data: data.data, message: data.message };
 };
 
-export const deleteProduct = async (id: string): Promise<void> => {
-  await apiClient.delete(`/products/${id}`);
+export const deleteProduct = async (id: string): Promise<string> => {
+  const { data } = await apiClient.delete<ApiResponse<null>>(`/products/${id}`);
+  return data.message;
 };
 
 export const uploadImage = async (
   id: string,
   formData: FormData,
-): Promise<ProductImage[]> => {
+): Promise<{ data: ProductImage[]; message: string }> => {
   const { data } = await apiClient.post<ApiResponse<ProductImage[]>>(
     `/products/${id}/images`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } },
   );
-  return data.data;
+  return { data: data.data, message: data.message };
 };
 
-export const deleteImage = async (
-  id: string,
-  imageId: string,
-): Promise<void> => {
-  await apiClient.delete(`/products/${id}/images/${imageId}`);
+export const deleteImage = async (id: string, imageId: string): Promise<string> => {
+  const { data } = await apiClient.delete<ApiResponse<null>>(
+    `/products/${id}/images/${imageId}`,
+  );
+  return data.message;
 };
 
-export const setPrimaryImage = async (
-  id: string,
-  imageId: string,
-): Promise<void> => {
-  await apiClient.patch(`/products/${id}/images/${imageId}/primary`);
+export const setPrimaryImage = async (id: string, imageId: string): Promise<string> => {
+  const { data } = await apiClient.patch<ApiResponse<null>>(
+    `/products/${id}/images/${imageId}/primary`,
+  );
+  return data.message;
 };
 
 export const setAttributeValues = async (
   id: string,
   dto: SetAttributeValuesDto,
-): Promise<ProductAttribute[]> => {
+): Promise<{ data: ProductAttribute[]; message: string }> => {
   const { data } = await apiClient.post<ApiResponse<ProductAttribute[]>>(
     `/products/${id}/attributes`,
     dto,
   );
-  return data.data;
+  return { data: data.data, message: data.message };
 };
 
 export const upsertProductTranslations = async (
   id: string,
   dto: UpsertProductTranslationDto[],
-): Promise<void> => {
-  await apiClient.post(`/products/${id}/translations`, { translations: dto });
+): Promise<string> => {
+  const { data } = await apiClient.post<ApiResponse<null>>(
+    `/products/${id}/translations`,
+    { translations: dto },
+  );
+  return data.message;
 };
