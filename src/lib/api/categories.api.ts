@@ -13,6 +13,7 @@ export const createCategory = async (dto: {
   slug: string;
   sortOrder?: number;
   parentId?: string;
+  imageUrl?: string;
   translations: UpsertTranslationDto[];
 }): Promise<Category> => {
   const { data } = await apiClient.post<ApiResponse<Category>>(
@@ -24,7 +25,13 @@ export const createCategory = async (dto: {
 
 export const updateCategory = async (
   id: string,
-  dto: Partial<{ slug: string; sortOrder: number; parentId: string; isActive: boolean }>,
+  dto: Partial<{
+    slug: string;
+    sortOrder: number;
+    parentId: string;
+    imageUrl: string;
+    isActive: boolean;
+  }>,
 ): Promise<Category> => {
   const { data } = await apiClient.patch<ApiResponse<Category>>(
     `/categories/${id}`,
@@ -42,4 +49,15 @@ export const upsertCategoryTranslations = async (
   translations: UpsertTranslationDto[],
 ): Promise<void> => {
   await apiClient.post(`/categories/${id}/translations`, { translations });
+};
+
+/** Upload a category logo/image and return its public URL. */
+export const uploadCategoryImage = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await apiClient.post<ApiResponse<{ url: string }>>(
+    "/storage/upload?folder=categories",
+    formData,
+  );
+  return data.data.url;
 };

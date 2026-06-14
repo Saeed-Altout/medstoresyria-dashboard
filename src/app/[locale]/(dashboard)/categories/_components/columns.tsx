@@ -1,9 +1,10 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { IconPencil, IconTrash } from "@tabler/icons-react";
+import { IconPencil, IconPhoto, IconTrash } from "@tabler/icons-react";
 import type { Category } from "@/types";
 
 export interface FlatCategory extends Omit<Category, "children"> {
@@ -62,9 +63,25 @@ export function getCategoryColumns({
       accessorKey: "name",
       header: tName,
       cell: ({ row }) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="font-medium text-sm">{row.original.name}</span>
-          <span className="text-xs text-muted-foreground font-mono">{row.original.slug}</span>
+        <div className="flex items-center gap-3">
+          <div className="size-9 shrink-0 overflow-hidden rounded-md border bg-muted flex items-center justify-center">
+            {row.original.imageUrl ? (
+              <Image
+                src={row.original.imageUrl}
+                alt={row.original.name}
+                width={36}
+                height={36}
+                className="size-9 object-cover"
+                unoptimized
+              />
+            ) : (
+              <IconPhoto className="size-4 text-muted-foreground" />
+            )}
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="font-medium text-sm">{row.original.name}</span>
+            <span className="text-xs text-muted-foreground font-mono">{row.original.slug}</span>
+          </div>
         </div>
       ),
     },

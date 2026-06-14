@@ -295,7 +295,13 @@
     "updated": "Category updated",
     "deleted": "Category deleted",
     "active_description": "Category is visible to customers",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "image": "Category Image",
+    "upload_image": "Upload image",
+    "remove_image": "Remove",
+    "image_hint": "JPEG, PNG or WebP. Max 5MB. Shown with the category name on the website.",
+    "image_type_error": "Only JPEG, PNG, and WebP images are allowed",
+    "image_size_error": "Image must be smaller than 5MB"
   },
   "brands": {
     "title": "Brands",

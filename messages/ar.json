@@ -295,7 +295,13 @@
     "updated": "تم تحديث التصنيف",
     "deleted": "تم حذف التصنيف",
     "active_description": "التصنيف مرئي للعملاء",
-    "error": "حدث خطأ ما"
+    "error": "حدث خطأ ما",
+    "image": "صورة التصنيف",
+    "upload_image": "رفع صورة",
+    "remove_image": "إزالة",
+    "image_hint": "JPEG أو PNG أو WebP. بحد أقصى 5 ميغابايت. تُعرض مع اسم التصنيف في الموقع.",
+    "image_type_error": "يُسمح فقط بصور JPEG وPNG وWebP",
+    "image_size_error": "يجب أن يكون حجم الصورة أقل من 5 ميغابايت"
   },
   "brands": {
     "title": "العلامات التجارية",
