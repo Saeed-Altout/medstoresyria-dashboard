@@ -55,6 +55,7 @@
     "overview": "Overview",
     "orders": "Orders",
     "products": "Products",
+    "reviews": "Reviews",
     "inventory": "Inventory",
     "maintenance": "Maintenance",
     "invoices": "Invoices",
@@ -63,6 +64,7 @@
     "settings": "Settings",
     "categories": "Categories",
     "brands": "Brands",
+    "governorates": "Governorates",
     "logout": "Sign Out"
   },
   "overview": {
@@ -170,6 +172,19 @@
     "attr_no_category_title": "No category selected",
     "attr_no_category_desc": "Go to Basic Info and assign a category to see its attributes.",
     "attr_no_defs_desc": "has no attribute definitions. Attributes are configured per category by admins."
+  },
+  "reviews": {
+    "title": "Reviews",
+    "product": "Product",
+    "author": "Author",
+    "rating": "Rating",
+    "review": "Review",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approved": "Approved",
+    "pending": "Pending",
+    "verified": "Verified purchase",
+    "reject_confirm": "Are you sure you want to remove this review?"
   },
   "inventory": {
     "title": "Inventory",
@@ -322,6 +337,22 @@
     "updated": "Brand updated",
     "deleted": "Brand deleted",
     "error": "Something went wrong"
+  },
+  "governorates": {
+    "title": "Governorates",
+    "add": "Add Governorate",
+    "edit": "Edit Governorate",
+    "name_en": "Name (English)",
+    "name_ar": "Name (Arabic)",
+    "delivery_fee": "Delivery Fee (USD)",
+    "delivery_fee_hint": "Enter the delivery fee in US dollars, e.g. 5.00",
+    "filter_all": "All",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "active_description": "Governorate will appear in the checkout address options",
+    "created": "Governorate created",
+    "updated": "Governorate updated"
   },
   "settings": {
     "title": "Settings",

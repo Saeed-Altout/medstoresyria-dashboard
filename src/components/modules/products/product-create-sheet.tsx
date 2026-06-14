@@ -68,7 +68,7 @@ export function ProductCreateSheet({ open, onOpenChange }: ProductCreateSheetPro
   const { data: categories } = useGetCategories();
   const { data: brands } = useGetBrands();
 
-  const flatCategories = flattenCategories(categories ?? []);
+  const flatCategories = flattenCategories(categories?.data ?? []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,9 @@ import { Header } from "@/components/header";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuthStore } from "@/stores/auth.store";
 import { canAccess } from "@/lib/utils/roles";
-import { getCategoryTree, deleteCategory } from "@/lib/api/categories.api";
-import { getCategoryColumns, flattenTree } from "./_components/columns";
+import { deleteCategory } from "@/lib/api/categories.api";
+import { useGetCategories, categoryKeys } from "@/lib/hooks/categories";
+import { getCategoryColumns } from "./_components/columns";
 import { CategoryFormSheet } from "./_components/category-form-sheet";
 import { CategoriesToolbar } from "./_components/categories-toolbar";
 import type { ApiResponse, Category } from "@/types";
@@ -34,27 +35,31 @@ export default function CategoriesPage() {
   }, [user, router]);
 
   const [status, setStatus] = useState<StatusFilter>("active");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [formOpen, setFormOpen] = useState(false);
   const [editCategory, setEditCategory] = useState<Category | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const { data: categories, isLoading } = useQuery<Category[], AxiosError>({
-    queryKey: ["categories", status],
-    queryFn: () => getCategoryTree(status),
-  });
+  const handleStatusChange = (s: StatusFilter) => { setStatus(s); setPage(1); };
+  const handleSearch = useCallback((s: string) => { setSearch(s); setPage(1); }, []);
+
+  const { data: result, isLoading } = useGetCategories({ status, search, page, limit });
+
+  const categories = result?.data ?? [];
+  const meta = result?.meta ?? { page, limit, total: 0, totalPages: 1 };
 
   const deleteMutation = useMutation({
     mutationFn: deleteCategory,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: categoryKeys.all });
       toast.success(t("deleted"));
       setDeleteId(null);
     },
     onError: (err: AxiosError) =>
       toast.error((err.response?.data as ApiResponse<null>)?.message ?? "Error"),
   });
-
-  const flatCategories = useMemo(() => flattenTree(categories ?? []), [categories]);
 
   const columns = useMemo(
     () =>
@@ -64,10 +69,11 @@ export default function CategoriesPage() {
         tSortOrder: t("sort_order"),
         tActive: tCommon("active"),
         tInactive: tCommon("inactive"),
-        categories: categories ?? [],
+        categories,
         onEdit: (cat) => { setEditCategory(cat); setFormOpen(true); },
         onDelete: setDeleteId,
       }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [categories, t, tCommon],
   );
 
@@ -84,18 +90,23 @@ export default function CategoriesPage() {
 
       <DataTable<FlatCategory>
         columns={columns}
-        data={flatCategories}
+        data={categories as FlatCategory[]}
         isLoading={isLoading}
+        searchable
+        onSearch={handleSearch}
         toolbar={
-          <CategoriesToolbar status={status} onStatusChange={setStatus} />
+          <CategoriesToolbar status={status} onStatusChange={handleStatusChange} />
         }
+        meta={meta}
+        onPageChange={setPage}
+        onLimitChange={(l) => { setLimit(l); setPage(1); }}
       />
 
       <CategoryFormSheet
         open={formOpen}
         onOpenChange={(o) => { setFormOpen(o); if (!o) setEditCategory(null); }}
         category={editCategory}
-        allCategories={categories ?? []}
+        allCategories={categories}
       />
 
       <ConfirmDialog

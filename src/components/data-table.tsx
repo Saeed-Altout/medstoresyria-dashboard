@@ -150,6 +150,8 @@ export function DataTable<T extends object>({
   const [internalData, setInternalData] = React.useState(() => externalData)
   React.useEffect(() => { setInternalData(externalData) }, [externalData])
 
+  const displayMeta = meta
+
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -197,9 +199,9 @@ export function DataTable<T extends object>({
   }
 
   const hasToolbar = searchable || toolbar || actions
-  const hasPagination = !draggable && !!meta
-  const from = meta ? (meta.page - 1) * meta.limit + 1 : 0
-  const to = meta ? Math.min(meta.page * meta.limit, meta.total) : 0
+  const hasPagination = !draggable && !!displayMeta
+  const from = displayMeta ? (displayMeta.page - 1) * displayMeta.limit + 1 : 0
+  const to = displayMeta ? Math.min(displayMeta.page * displayMeta.limit, displayMeta.total) : 0
 
   const tableBody = isLoading ? (
     <TableRow>
@@ -237,17 +239,19 @@ export function DataTable<T extends object>({
     <Card className="gap-0 py-0">
       {hasToolbar && (
         <CardHeader className="border-b px-4 py-3">
-          {searchable && (
-            <Input
-              placeholder={t("search")}
-              className="h-8 w-48 text-sm"
-              onChange={(e) => onSearch?.(e.target.value)}
-            />
-          )}
-          {(toolbar || actions) && (
+          <div className="flex items-center justify-start gap-2 flex-wrap flex-1">
+            {searchable && (
+              <Input
+                placeholder={t("search")}
+                className="h-8 w-48 text-sm"
+                onChange={(e) => onSearch?.(e.target.value)}
+              />
+            )}
+            {toolbar}
+          </div>
+          {actions && (
             <CardAction>
               <div className="flex items-center gap-2 flex-wrap">
-                {toolbar}
                 {actions}
               </div>
             </CardAction>
@@ -302,7 +306,7 @@ export function DataTable<T extends object>({
           <div className="flex items-center gap-2 shrink-0">
             <span className="whitespace-nowrap">{t("rows_per_page")}</span>
             <Select
-              value={String(meta!.limit)}
+              value={String(displayMeta!.limit)}
               onValueChange={(v) => onLimitChange?.(Number(v))}
             >
               <SelectTrigger className="h-8 w-16 text-sm">
@@ -317,7 +321,7 @@ export function DataTable<T extends object>({
           </div>
 
           <span className="whitespace-nowrap">
-            {t("showing")} {from}–{to} {t("of")} {meta!.total} {t("results")}
+            {t("showing")} {from}–{to} {t("of")} {displayMeta!.total} {t("results")}
           </span>
 
           <div className="flex items-center gap-1">
@@ -325,7 +329,7 @@ export function DataTable<T extends object>({
               variant="outline"
               size="icon"
               className="size-8"
-              disabled={meta!.page <= 1}
+              disabled={displayMeta!.page <= 1}
               onClick={() => onPageChange?.(1)}
             >
               <IconChevronsLeft className={`size-4 ${iconClass}`} />
@@ -335,21 +339,21 @@ export function DataTable<T extends object>({
               variant="outline"
               size="icon"
               className="size-8"
-              disabled={meta!.page <= 1}
-              onClick={() => onPageChange?.(meta!.page - 1)}
+              disabled={displayMeta!.page <= 1}
+              onClick={() => onPageChange?.(displayMeta!.page - 1)}
             >
               <IconChevronLeft className={`size-4 ${iconClass}`} />
               <span className="sr-only">{t("previous")}</span>
             </Button>
             <span className="tabular-nums font-medium px-2 whitespace-nowrap">
-              {meta!.page} / {meta!.totalPages}
+              {displayMeta!.page} / {displayMeta!.totalPages}
             </span>
             <Button
               variant="outline"
               size="icon"
               className="size-8"
-              disabled={meta!.page >= meta!.totalPages}
-              onClick={() => onPageChange?.(meta!.page + 1)}
+              disabled={displayMeta!.page >= displayMeta!.totalPages}
+              onClick={() => onPageChange?.(displayMeta!.page + 1)}
             >
               <IconChevronRight className={`size-4 ${iconClass}`} />
               <span className="sr-only">{t("next")}</span>
@@ -358,8 +362,8 @@ export function DataTable<T extends object>({
               variant="outline"
               size="icon"
               className="size-8"
-              disabled={meta!.page >= meta!.totalPages}
-              onClick={() => onPageChange?.(meta!.totalPages)}
+              disabled={displayMeta!.page >= displayMeta!.totalPages}
+              onClick={() => onPageChange?.(displayMeta!.totalPages)}
             >
               <IconChevronsRight className={`size-4 ${iconClass}`} />
               <span className="sr-only">{t("last_page")}</span>

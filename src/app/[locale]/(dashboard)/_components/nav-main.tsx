@@ -21,6 +21,8 @@ import {
   IconSettings,
   IconCategory2,
   IconBuildingStore,
+  IconMapPin,
+  IconStar,
   type Icon as TablerIcon,
 } from "@tabler/icons-react"
 import { canAccess } from "@/lib/utils/roles"
@@ -38,14 +40,16 @@ const NAV_ITEMS: NavItem[] = [
   { labelKey: "overview",    href: "/overview",    icon: IconLayoutDashboard, section: "overview"    },
   { labelKey: "orders",      href: "/orders",      icon: IconShoppingCart,    section: "orders"      },
   { labelKey: "products",    href: "/products",    icon: IconPackage,         section: "products"    },
+  { labelKey: "reviews",     href: "/reviews",     icon: IconStar,            section: "products"    },
   { labelKey: "inventory",   href: "/inventory",   icon: IconBox,             section: "inventory"   },
   { labelKey: "maintenance", href: "/maintenance", icon: IconTool,            section: "maintenance" },
   { labelKey: "invoices",    href: "/invoices",    icon: IconFileInvoice,     section: "invoices"    },
   { labelKey: "reports",     href: "/reports",     icon: IconChartBar,        section: "reports"     },
   { labelKey: "users",       href: "/users",       icon: IconUsers,           section: "users"       },
   { labelKey: "settings",    href: "/settings",    icon: IconSettings,        section: "settings"    },
-  { labelKey: "categories",  href: "/categories",  icon: IconCategory2,       section: "settings"    },
-  { labelKey: "brands",      href: "/brands",      icon: IconBuildingStore,   section: "settings"    },
+  { labelKey: "categories",    href: "/categories",    icon: IconCategory2,     section: "settings"    },
+  { labelKey: "brands",        href: "/brands",        icon: IconBuildingStore, section: "settings"    },
+  { labelKey: "governorates",  href: "/governorates",  icon: IconMapPin,        section: "settings"    },
 ]
 
 export function NavMain({ role }: { role: UserRole | undefined }) {

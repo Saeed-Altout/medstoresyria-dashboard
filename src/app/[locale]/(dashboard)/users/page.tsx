@@ -34,6 +34,7 @@ export default function UsersPage() {
 
   const { filters, setPage, setLimit, setFilter } = useUserFilters();
   const { data, isLoading } = useGetUsers(filters);
+  const meta = data?.meta ?? { page: filters.page ?? 1, limit: filters.limit ?? 10, total: 0, totalPages: 1 };
   const toggleMutation = useToggleUserActive();
   const handleSearch = useDebouncedSearch(useUserFilters.getState().setSearch);
 
@@ -77,7 +78,7 @@ export default function UsersPage() {
         columns={columns}
         data={data?.data ?? []}
         isLoading={isLoading}
-        meta={data?.meta}
+        meta={meta}
         onPageChange={setPage}
         onLimitChange={setLimit}
         searchable

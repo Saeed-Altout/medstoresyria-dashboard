@@ -3,20 +3,33 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { AxiosError } from "axios";
-import { getCategoryTree, createCategory, updateCategory, deleteCategory, upsertCategoryTranslations } from "@/lib/api/categories.api";
+import {
+  getCategoryTree,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  upsertCategoryTranslations,
+} from "@/lib/api/categories.api";
+import type { CategoriesPage } from "@/lib/api/categories.api";
 import type { ApiResponse, Category, UpsertTranslationDto } from "@/types";
 
 export type StatusFilter = "active" | "inactive" | "all";
 
 export const categoryKeys = {
   all: ["categories"] as const,
-  tree: (status: StatusFilter = "active") => ["categories", "tree", status] as const,
+  list: (params: { status?: StatusFilter; search?: string; page?: number; limit?: number }) =>
+    ["categories", "list", params] as const,
 };
 
-export function useGetCategories(status: StatusFilter = "active") {
-  return useQuery<Category[], AxiosError>({
-    queryKey: categoryKeys.tree(status),
-    queryFn: () => getCategoryTree(status),
+export function useGetCategories(params: {
+  status?: StatusFilter;
+  search?: string;
+  page?: number;
+  limit?: number;
+} = {}) {
+  return useQuery<CategoriesPage, AxiosError>({
+    queryKey: categoryKeys.list(params),
+    queryFn: () => getCategoryTree(params),
   });
 }
 

@@ -43,6 +43,7 @@ export default function ProductsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const { data, isLoading } = useGetProducts(filters);
+  const meta = data?.meta ?? { page: filters.page ?? 1, limit: filters.limit ?? 10, total: 0, totalPages: 1 };
   const deleteMutation = useDeleteProduct();
 
   const { data: categories } = useGetCategories();
@@ -77,14 +78,14 @@ export default function ProductsPage() {
         columns={columns}
         data={data?.data ?? []}
         isLoading={isLoading}
-        meta={data?.meta}
+        meta={meta}
         onPageChange={setPage}
         onLimitChange={setLimit}
         searchable
         onSearch={handleSearch}
         toolbar={
           <ProductsToolbar
-            categories={flattenCategories(categories ?? [])}
+            categories={flattenCategories(categories?.data ?? [])}
             brands={brands ?? []}
             onCategoryChange={(id) => setFilter("categoryId", id)}
             onBrandChange={(id) => setFilter("brandId", id)}

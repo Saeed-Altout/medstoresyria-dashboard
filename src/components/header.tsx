@@ -1,11 +1,3 @@
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
 export function Header({
   title,
   description,
@@ -16,12 +8,14 @@ export function Header({
   children?: React.ReactNode;
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-bold text-2xl">{title}</CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
-        <CardAction>{children}</CardAction>
-      </CardHeader>
-    </Card>
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-1">
+        <h1 className="font-bold text-2xl">{title}</h1>
+        {description && (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        )}
+      </div>
+      {children && <div className="flex items-center gap-2">{children}</div>}
+    </div>
   );
 }

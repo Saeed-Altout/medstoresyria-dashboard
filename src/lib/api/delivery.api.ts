@@ -1,16 +1,20 @@
 import apiClient from "./client";
 import type { ApiResponse, Governorate } from "@/types";
 
-export const getGovernorates = async (): Promise<Governorate[]> => {
-  const { data } =
-    await apiClient.get<ApiResponse<Governorate[]>>("/delivery/governorates");
+export const getGovernorates = async (
+  status?: "active" | "inactive" | "all",
+): Promise<Governorate[]> => {
+  const { data } = await apiClient.get<ApiResponse<Governorate[]>>(
+    "/delivery/governorates",
+    { params: status ? { status } : {} },
+  );
   return data.data;
 };
 
 export const createGovernorate = async (dto: {
   name: string;
   name_local?: string;
-  delivery_fee_usd: string;
+  delivery_fee_usd: string | number;
 }): Promise<Governorate> => {
   const { data } = await apiClient.post<ApiResponse<Governorate>>(
     "/delivery/governorates",
@@ -21,7 +25,7 @@ export const createGovernorate = async (dto: {
 
 export const updateGovernorate = async (
   id: string,
-  dto: Partial<{ name: string; name_local: string; delivery_fee_usd: string }>,
+  dto: Partial<{ name: string; name_local: string; delivery_fee_usd: string; is_active: boolean }>,
 ): Promise<Governorate> => {
   const { data } = await apiClient.patch<ApiResponse<Governorate>>(
     `/delivery/governorates/${id}`,

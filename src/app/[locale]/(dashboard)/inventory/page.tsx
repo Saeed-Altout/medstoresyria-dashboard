@@ -34,6 +34,7 @@ export default function InventoryPage() {
 
   const { filters, setPage, setLimit } = useInventoryLogFilters();
   const { data: logs, isLoading: logsLoading } = useGetInventoryLogs(filters);
+  const logsMeta = logs?.meta ?? { page: filters.page ?? 1, limit: filters.limit ?? 10, total: 0, totalPages: 1 };
   const handleLogSearch = useDebouncedSearch(useInventoryLogFilters.getState().setSearch);
 
   const alertColumns = useMemo(
@@ -87,7 +88,7 @@ export default function InventoryPage() {
             columns={logColumns}
             data={logs?.data ?? []}
             isLoading={logsLoading}
-            meta={logs?.meta}
+            meta={logsMeta}
             onPageChange={setPage}
             onLimitChange={setLimit}
             searchable

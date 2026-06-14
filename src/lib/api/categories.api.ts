@@ -1,9 +1,20 @@
 import apiClient from "./client";
-import type { ApiResponse, Category, UpsertTranslationDto } from "@/types";
+import type { ApiResponse, Category, PaginationMeta, UpsertTranslationDto } from "@/types";
 
-export const getCategoryTree = async (status: "active" | "inactive" | "all" = "active"): Promise<Category[]> => {
-  const { data } = await apiClient.get<ApiResponse<Category[]>>("/categories", {
-    params: status !== "active" ? { status } : undefined,
+export interface CategoriesPage {
+  data: Category[];
+  meta: PaginationMeta;
+}
+
+export const getCategoryTree = async (params: {
+  status?: "active" | "inactive" | "all";
+  search?: string;
+  page?: number;
+  limit?: number;
+} = {}): Promise<CategoriesPage> => {
+  const { status = "active", search, page = 1, limit = 10 } = params;
+  const { data } = await apiClient.get<ApiResponse<CategoriesPage>>("/categories", {
+    params: { status, ...(search ? { search } : {}), page, limit },
   });
   return data.data;
 };

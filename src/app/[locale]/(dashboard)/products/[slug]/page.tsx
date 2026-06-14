@@ -51,6 +51,7 @@ import { getAttributesByCategoryId } from "@/lib/api/attributes.api";
 import { formatPrice } from "@/lib/utils/format";
 import type {
   ProductDetail,
+  ProductTranslation,
   Category,
   Brand,
   AttributeDefinition,
@@ -80,7 +81,7 @@ const translationSchema = z.object({
   name_en: z.string().min(1, "Required"),
   description_en: z.string().optional(),
   report_en: z.string().optional(),
-  name_ar: z.string().optional(),
+  name_ar: z.string().min(1, "Required"),
   description_ar: z.string().optional(),
   report_ar: z.string().optional(),
 });
@@ -360,41 +361,57 @@ function BasicForm({
 
 // ─── Translations Form ────────────────────────────────────────────────────────
 
+function getLocale(translations: ProductTranslation[], locale: string) {
+  return translations.find((t) => t.locale === locale);
+}
+
 function TranslationsForm({ product }: { product: ProductDetail }) {
   const t = useTranslations("products");
   const tCommon = useTranslations("common");
   const upsertMutation = useUpsertProductTranslations();
 
+  const en = getLocale(product.translations ?? [], "en");
+  const ar = getLocale(product.translations ?? [], "ar");
+
   const form = useForm<TranslationValues>({
     resolver: zodResolver(translationSchema),
     defaultValues: {
-      name_en: product.name ?? "",
-      description_en: product.description ?? "",
-      report_en: product.condition_report ?? "",
-      name_ar: "",
-      description_ar: "",
-      report_ar: "",
+      name_en: en?.name ?? "",
+      description_en: en?.description ?? "",
+      report_en: en?.condition_report ?? "",
+      name_ar: ar?.name ?? "",
+      description_ar: ar?.description ?? "",
+      report_ar: ar?.condition_report ?? "",
     },
   });
+
+  useEffect(() => {
+    const en = getLocale(product.translations ?? [], "en");
+    const ar = getLocale(product.translations ?? [], "ar");
+    form.reset({
+      name_en: en?.name ?? "",
+      description_en: en?.description ?? "",
+      report_en: en?.condition_report ?? "",
+      name_ar: ar?.name ?? "",
+      description_ar: ar?.description ?? "",
+      report_ar: ar?.condition_report ?? "",
+    });
+  }, [product]);
 
   function onSubmit(values: TranslationValues) {
     const translations = [
       {
         locale: "en",
         name: values.name_en,
-        description: values.description_en,
-        condition_report: values.report_en,
+        description: values.description_en || undefined,
+        condition_report: values.report_en || undefined,
       },
-      ...(values.name_ar
-        ? [
-            {
-              locale: "ar",
-              name: values.name_ar,
-              description: values.description_ar,
-              condition_report: values.report_ar,
-            },
-          ]
-        : []),
+      {
+        locale: "ar",
+        name: values.name_ar ?? values.name_en,
+        description: values.description_ar || undefined,
+        condition_report: values.report_ar || undefined,
+      },
     ];
     upsertMutation.mutate({ id: product.id, translations });
   }
@@ -878,7 +895,7 @@ export default function ProductDetailPage() {
           >
             <BasicForm
               product={product}
-              categories={categories ?? []}
+              categories={categories?.data ?? []}
               brands={brands ?? []}
             />
           </TabsContent>

@@ -80,12 +80,34 @@ export interface ProductAttribute {
   value: string;
 }
 
+export interface ProductTranslation {
+  locale: string;
+  name: string;
+  description: string | null;
+  condition_report: string | null;
+}
+
+export interface Review {
+  id: string;
+  rating: number;
+  title: string | null;
+  body: string;
+  author_name: string;
+  is_verified_purchase: boolean;
+  is_approved: boolean;
+  created_at: string;
+  product?: { id: string; slug: string };
+}
+
+export type ReviewStatusFilter = "pending" | "approved" | "all";
+
 export interface ProductDetail extends ProductListItem {
   stock_min: number;
   is_active: boolean;
   in_stock: boolean;
   description: string | null;
   condition_report: string | null;
+  translations: ProductTranslation[];
   images: ProductImage[];
   attributes: ProductAttribute[];
   brand: {
@@ -190,6 +212,7 @@ export interface Governorate {
   name: string;
   name_local: string | null;
   delivery_fee_usd: string;
+  is_active: boolean;
 }
 
 export interface Category {
