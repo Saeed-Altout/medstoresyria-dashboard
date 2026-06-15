@@ -7,6 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-tajawal: var(--font-tajawal);
+  --font-poppins: var(--font-poppins);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
@@ -132,10 +134,10 @@
   }
 }
 
-.font-cairo {
-  font-family: var(--font-cairo), sans-serif;
+.font-tajawal {
+  font-family: var(--font-tajawal), sans-serif;
 }
 
-.font-inter {
-  font-family: var(--font-inter), sans-serif;
+.font-poppins {
+  font-family: var(--font-poppins), sans-serif;
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cairo, Inter } from "next/font/google";
+import { Tajawal, Poppins } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { getMessages } from "next-intl/server";
@@ -11,14 +11,17 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 import "../globals.css";
 
-const cairo = Cairo({
+const tajawal = Tajawal({
   subsets: ["arabic", "latin"],
-  variable: "--font-cairo",
+  weight: ["400", "500", "700", "800"],
+  variable: "--font-tajawal",
 });
 
-const inter = Inter({
+const poppins = Poppins({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -48,11 +51,11 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={isRTL ? "rtl" : "ltr"}
-      className={`${cairo.variable} ${inter.variable}`}
+      className={`${tajawal.variable} ${poppins.variable}`}
       suppressHydrationWarning
     >
       <body
-        className={`min-h-full flex flex-col ${isRTL ? "font-cairo" : "font-inter"}`}
+        className={`min-h-full flex flex-col ${isRTL ? "font-tajawal" : "font-poppins"}`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <QueryProvider>
